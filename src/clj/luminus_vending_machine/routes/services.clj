@@ -35,4 +35,8 @@
     (GET "/balance" []
       :return       Double
       :summary      "coin on body is inserted to the machine."
-              (ok (vending-machine-balance)))))
+              (ok (vending-machine-balance)))
+    (GET "/coins" []
+      :return       String
+      :summary      "coin on body is inserted to the machine."
+      (ok (clojure.string/join ", " (map name @inserted-coins))))))
