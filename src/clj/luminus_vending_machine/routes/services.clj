@@ -3,8 +3,17 @@
             [compojure.api.sweet :refer :all]
             [schema.core :as s]))
 
-(def coins-value {:nicle 1/20 :quarter 1/4 :dime 1/10 :half_d 1/2 :dolar 1})
-(def amount-inserted-ref (ref 0.0M))
+(def coins-value {:nickel 1/20 :quarter 1/4 :dime 1/10 :half_d 1/2 :dolar 1})
+
+(def inserted-coins (ref []))
+
+(defn coin-value-fn [k] (k coins-value))
+
+(defn sum-coins-string [coins]
+  (eval (conj (map coin-value-fn coins) +)))
+
+(defn vending-machine-balance []
+  (sum-coins-string @inserted-coins))
 
 (defapi service-routes
   {:swagger {:ui "/swagger-ui"
@@ -20,6 +29,10 @@
       :body-params [coin :- String]
       :summary      "coin on body is inserted to the machine."
       (dosync
-        (alter amount-inserted-ref +
-                     ((keyword coin) coins-value))
-              (ok  @amount-inserted-ref)))))
+        (alter inserted-coins conj (keyword coin))
+              (ok (vending-machine-balance))))
+
+    (GET "/balance" []
+      :return       Double
+      :summary      "coin on body is inserted to the machine."
+              (ok (vending-machine-balance)))))
