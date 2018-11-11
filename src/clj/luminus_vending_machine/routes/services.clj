@@ -5,6 +5,11 @@
 
 (def coins-value {:nickel 1/20 :quarter 1/4 :dime 1/10 :half_d 1/2 :dolar 1})
 
+(defn print-list [list]
+  (let [[x & xs] list] ((print x " teste\n") (if-some xs print-list))))
+
+(def products-value {:pastelina 1.2 :coquinha 2.5 :cocao 5.0 :tubaina 2.5 :pureza 2.5 })
+
 (def inserted-coins (ref []))
 
 (defn coin-value-fn [k] (k coins-value))
@@ -31,12 +36,15 @@
       (dosync
         (alter inserted-coins conj (keyword coin))
               (ok (vending-machine-balance))))
-
+    (POST "/dispense" []
+      :return       Double
+      :body-params [product :- String]
+      :summary      "product on body is passed to the machine, inorder to dispense it.")
     (GET "/balance" []
       :return       Double
-      :summary      "coin on body is inserted to the machine."
+      :summary      "return the total amount of credits inserted."
               (ok (vending-machine-balance)))
     (GET "/coins" []
       :return       String
-      :summary      "coin on body is inserted to the machine."
+      :summary      "return all coins inserted into the machine."
       (ok (clojure.string/join ", " (map name @inserted-coins))))))
